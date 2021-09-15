@@ -7,11 +7,11 @@ local Constructors = {}
 local Morph = {}
 Morph.__index = Morph
 
-local function clearCharacterAppearance(character: Model, doAccessories: boolean?, doClothes: boolean?)
+local function clearCharacterAppearance(character: Model, doAccessories: boolean?, doClothes: boolean?, doFaces: boolean?)
 	if not character then
 		warn(debug.traceback("Cannot clear character appearance: no model specified"))
 		return
-	elseif not doAccessories and not doClothes then
+	elseif not doAccessories and not doClothes and not doFaces then
 		warn(debug.traceback("No appearance items to clear"))
 		return
 	end
@@ -30,6 +30,14 @@ local function clearCharacterAppearance(character: Model, doAccessories: boolean
 				-- Take advantage of the loop to remove accessories that couldn't be removed
 				-- if a Humanoid didn't exist to call RemoveAccessories on
 				object:Destroy()
+			end
+		end
+	end
+	
+	if doFaces then
+		for _, Face in ipairs(character.Head):GetChildren()) do
+			if Face:Isa("Texture") or Face:Isa("Decal") then
+				Face:Destroy()
 			end
 		end
 	end
@@ -62,7 +70,7 @@ function Morph:_SeekFolder(folderName: string): Folder?
 	return nil
 end
 
-function Morph:ApplyFullMorph(player: Player, folderName: string, includeClothes: boolean?)
+function Morph:ApplyFullMorph(player: Player, folderName: string, includeClothes: boolean?, includeFaces: boolean?)
 	local character: Model
 	local humanoid: Humanoid
 	local selectedFolder: Folder = self:_SeekFolder(folderName)
@@ -98,6 +106,10 @@ function Morph:ApplyFullMorph(player: Player, folderName: string, includeClothes
 			local newClothing = item:Clone()
 			CollectionService:AddTag(newClothing, MORPH_OBJECT_TAG_NAME)
 			newClothing.Parent = character
+		elseif includeFaces and item:IsA("Decal") or item:IsA("Texture") then
+			local NewFace = item:Clone()
+			CollectionService:AddtAG(NewFace, MORPH_OBJECT_TAG_NAME)
+			NewFace.Parent = character.Head
 		end
 	end
 end
@@ -106,7 +118,7 @@ function Morph:ApplyMorph(player: Player, folderName: string)
 	self:ApplyFullMorph(player, folderName, false)
 end
 
-function Morph:RemoveFullMorph(player: Player, doClothes: boolean?)
+function Morph:RemoveFullMorph(player: Player, doClothes: boolean?, doFaces: boolean?)
 	local character: Model
 
 	if not player then
@@ -127,6 +139,15 @@ function Morph:RemoveFullMorph(player: Player, doClothes: boolean?)
 			item:Destroy()
 		end
 	end
+
+	if doFaces then
+		for _, Face in ipairs(character):GetChildren()) do
+			if Face:IsA("Texture") or Face:Isa("Decal") then
+				Face:Destroy()
+			end
+		end
+	end
+
 end
 
 function Morph:RemoveMorph(player: Player)

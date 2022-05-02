@@ -210,10 +210,12 @@ function Morph:ApplyFullMorph(Player, Folder, Clothes, faces)
 								Weld.C1 = CharacterAttachment.CFrame
 								Weld.Part0 = Attachment.Parent
 								Weld.Part1 = CharacterAttachment.Parent
-
+								
+								pcall(function() MorphPiece.Handle:WaitForChild("AccessoryWeld", 1):Destroy() end)
+								
 								Weld.Parent = MorphPiece.Handle
 							end
-							
+
 							for _,weld:Weld in next, MorphPiece.Handle:GetChildren() do
 								if weld:IsA("Weld") and weld.Part1.Name ~= "LeftUpperLeg" and weld.Part1.Name ~= "RightUpperLeg" and weld.Part1.Name ~= "LeftUpperArm" and weld.Part1.Name ~= "RightUpperArm"  then
 									weld:Destroy()

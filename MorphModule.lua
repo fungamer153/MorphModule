@@ -33,7 +33,7 @@ function Morph.new(MorphFolder)
 	setmetatable(MorphStuff, Morph)
 
 	MorphStuff.MorphFolder = MorphFolder;
-	
+
 	return MorphStuff
 end
 
@@ -68,14 +68,14 @@ function Morph:ApplyMorph(Player, Folder)
 	local SelectedFolder = self:SeekFolder(Folder)
 
 	assert(Player and SelectedFolder, "Please specify the morph folder you want to use! or Specify the player you're targetting this at!")
-	
+
 	self:RemoveNotNeededItems(Player, true, false)
 
 	for i,Item in pairs(SelectedFolder:GetChildren()) do
 		if Item:IsA("Accessory") then
 			local MorphPiece = Item:Clone()
 			Player.Character.Humanoid:AddAccessory(MorphPiece)
-			
+
 			if MorphPiece.Name:gsub("%s", "") == "LeftUpperLeg" or MorphPiece.Name:gsub("%s", "") == "RightUpperLeg" or MorphPiece.Name:gsub("%s", "") == "LeftUpperArm" or MorphPiece.Name:gsub("%s", "") == "RightUpperArm"  then
 				local Attachment = MorphPiece:FindFirstChild(MorphPiece.Name:sub(0, string.find(MorphPiece.Name:gsub("%s", ""), "Upper") - 1).. (string.find(MorphPiece.Name, "Leg") and "HipRigAttachment" or "ShoulderAttachment"), true)
 
@@ -110,9 +110,9 @@ function Morph:ApplyMorph(Player, Folder)
 end
 
 function Morph:RemoveMorph(Player, MorphName)
-		
+
 	assert(MorphName and Player, "Please make sure you pass over Player instance and morph you wanted to remove string")
-	
+
 	local SelectedFolder = self:SeekFolder(MorphName)
 	local MorphItems = {}
 
@@ -132,30 +132,30 @@ function Morph:RemoveMorph(Player, MorphName)
 end
 
 function Morph:RemoveWholeMorph(Player, MorphName)
-	
-		assert(Player and MorphName, "Please make sure you pass over Player instance and morph you wanted to remove string")
-	
-		local SelectedFolder = self:SeekFolder(MorphName)
-		local MorphItems = {}
 
-		for i,v in pairs(SelectedFolder:GetChildren()) do
-			if v:IsA('Accessory') or v:IsA("Pants") or v:IsA("Shirt") then
-				table.insert(MorphItems, v.Name)
-			end
-		end 
+	assert(Player and MorphName, "Please make sure you pass over Player instance and morph you wanted to remove string")
 
-		for i,v in pairs(Player.Character:GetChildren()) do
-			if v:IsA("Accessory") or v:IsA("Pants") or v:IsA("Shirt") then
-				if table.find(MorphItems, v.Name) then
-					v:Destroy()
-				end	
-			end
-		end		
+	local SelectedFolder = self:SeekFolder(MorphName)
+	local MorphItems = {}
+
+	for i,v in pairs(SelectedFolder:GetChildren()) do
+		if v:IsA('Accessory') or v:IsA("Pants") or v:IsA("Shirt") then
+			table.insert(MorphItems, v.Name)
+		end
+	end 
+
+	for i,v in pairs(Player.Character:GetChildren()) do
+		if v:IsA("Accessory") or v:IsA("Pants") or v:IsA("Shirt") then
+			if table.find(MorphItems, v.Name) then
+				v:Destroy()
+			end	
+		end
+	end		
 end
 
 function Morph:ApplyFullMorph(Player, Folder, Clothes, faces)
 	local SelectedFolder = self:SeekFolder(Folder)
-	
+
 	assert(Player and SelectedFolder, "Please specify the morph folder you want to use! or Specify the player you're targetting this at!")
 
 	if SelectedFolder == nil then
@@ -172,12 +172,12 @@ function Morph:ApplyFullMorph(Player, Folder, Clothes, faces)
 						ClonedUniform.Parent = Player.Character
 					end
 				end
-				
+
 				if faces then
 					if Player.Character.Head:FindFirstChildOfClass('Decal') then
 						Player.Character.Head:FindFirstChildOfClass('Decal'):Destroy()
 					end
-					
+
 					if Item:IsA('Decal') then
 						local NewFace = Item:Clone()
 						NewFace.Parent = Player.Character.Head
@@ -187,7 +187,7 @@ function Morph:ApplyFullMorph(Player, Folder, Clothes, faces)
 				if Item:IsA("Accessory") then
 					local MorphPiece = Item:Clone()
 					Player.Character.Humanoid:AddAccessory(MorphPiece)
-					
+
 					if MorphPiece.Name:gsub("%s", "") == "LeftUpperLeg" or MorphPiece.Name:gsub("%s", "") == "RightUpperLeg" or MorphPiece.Name:gsub("%s", "") == "LeftUpperArm" or MorphPiece.Name:gsub("%s", "") == "RightUpperArm"  then
 						local Attachment = MorphPiece:FindFirstChild(MorphPiece.Name:sub(0, string.find(MorphPiece.Name:gsub("%s", ""), "Upper") - 1).. (string.find(MorphPiece.Name, "Leg") and "HipRigAttachment" or "ShoulderAttachment"), true)
 
@@ -206,14 +206,20 @@ function Morph:ApplyFullMorph(Player, Folder, Clothes, faces)
 								local Weld = Instance.new("Weld")
 
 								Weld.Name = "AccessoryWeld"
-								Weld.C0 = CharacterAttachment.CFrame
-								Weld.C1 = Attachment.CFrame
-								Weld.Part0 = CharacterAttachment.Parent
-								Weld.Part1 = Attachment.Parent
-
+								Weld.C0 = Attachment.CFrame
+								Weld.C1 = CharacterAttachment.CFrame
+								Weld.Part0 = Attachment.Parent
+								Weld.Part1 = CharacterAttachment.Parent
+								
 								pcall(function() MorphPiece.Handle:WaitForChild("AccessoryWeld", 1):Destroy() end)
-
+								
 								Weld.Parent = MorphPiece.Handle
+							end
+
+							for _,weld:Weld in next, MorphPiece.Handle:GetChildren() do
+								if weld:IsA("Weld") and weld.Part1.Name ~= "LeftUpperLeg" and weld.Part1.Name ~= "RightUpperLeg" and weld.Part1.Name ~= "LeftUpperArm" and weld.Part1.Name ~= "RightUpperArm"  then
+									weld:Destroy()
+								end
 							end
 						end
 					end
